@@ -1,13 +1,13 @@
-import { Webhook } from "svix";
-import { headers } from "next/headers";
-import { WebhookEvent } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
 import { createUser, deleteUser, updateUser } from "@/lib/actions/user.actions";
 import { clerkClient } from "@clerk/nextjs";
+import { WebhookEvent } from "@clerk/nextjs/server";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import { Webhook } from "svix";
 
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
-  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+  const WEBHOOK_SECRET = process.env.NEXT_CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
     throw new Error(
@@ -55,10 +55,8 @@ export async function POST(req: Request) {
   const { id } = evt.data;
   const eventType = evt.type;
 
-  console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
-  console.log("Webhook body:", body);
+  console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
 
-  // User Creation
   if (eventType === "user.created") {
     const { id, email_addresses, image_url, first_name, last_name, username } =
       evt.data;
@@ -74,18 +72,21 @@ export async function POST(req: Request) {
 
     const newUser = await createUser(user);
 
-    if(newUser){
+    if (newUser) {
+      try {
         await clerkClient.users.updateUserMetadata(id, {
-            publicMetadata: {
-                userId: newUser._id
-            }
-        })
+          publicMetadata: {
+            userId: newUser._id,
+          },
+        });
+      } catch (error) {
+        return 'error in updating metadata';
+      }
     }
 
-    return NextResponse.json({ message: 'OK', user: newUser })
+    return NextResponse.json({ message: "OK", user: newUser });
   }
 
-  // User Updation
   if (eventType === "user.updated") {
     const { id, image_url, first_name, last_name, username } = evt.data;
 
@@ -96,18 +97,17 @@ export async function POST(req: Request) {
       photo: image_url,
     };
 
-    const updatedUser = await updateUser(id, user)
+    const updatedUser = await updateUser(id, user);
 
-    return NextResponse.json({ message: 'OK', user: updatedUser })
+    return NextResponse.json({ message: "OK", user: updatedUser });
   }
 
-  // User Deletion
   if (eventType === "user.deleted") {
     const { id } = evt.data;
 
-    const deletedUser = await deleteUser(id!)
+    const deletedUser = await deleteUser(id!);
 
-    return NextResponse.json({ message: 'OK', user: deletedUser })
+    return NextResponse.json({ message: "OK", user: deletedUser });
   }
 
   return new Response("", { status: 200 });
