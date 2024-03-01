@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import NavItems from "./shared/NavItems";
-import MobileNav from "./shared/MobileNav";
+import NavItems from "./NavItems";
+import MobileNav from "./MobileNav";
 
 const Header = () => {
   return (
