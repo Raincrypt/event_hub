@@ -18,7 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { eventFormSchema } from "@/lib/validator";
 import { eventDefaultValues } from "@/constants";
-import Formfield from "./Formfield";
 import Dropdown from "./Dropdown";
 import { Textarea } from "../ui/textarea";
 import Image from "next/image";
@@ -40,7 +39,14 @@ type EventFormProps = {
 
 const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
   const [files, setFiles] = useState<File[]>([]);
-  const initialValues = eventDefaultValues;
+  const initialValues =
+    event && type === "Update"
+      ? {
+          ...event,
+          startDateTime: new Date(event.startDateTime),
+          endDateTime: new Date(event.endDateTime),
+        }
+      : eventDefaultValues;
   const router = useRouter();
 
   const { startUpload } = useUploadThing("imageUploader");
@@ -82,9 +88,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
       } catch (error) {
         console.log(error);
       }
-    } 
-    
-    else if (type === "Update") {
+    } else if (type === "Update") {
       if (!eventId) {
         router.back();
         return;
