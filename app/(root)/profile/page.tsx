@@ -1,11 +1,10 @@
 import Collection from "@/components/shared/Collection";
 import HeadingWithButton from "@/components/shared/HeadingWithButton";
-import { Button } from "@/components/ui/button";
 import { getEventsByUser } from "@/lib/actions/event.actions";
+import { getOrdersByUser } from "@/lib/actions/order.actions";
+import { IOrder } from "@/lib/database/models/order.model";
 import { SearchParamProps } from "@/types";
 import { auth } from "@clerk/nextjs";
-import Link from "next/link";
-import React from "react";
 
 const page = async ({ searchParams }: SearchParamProps) => {
   const { sessionClaims } = auth();
@@ -16,6 +15,9 @@ const page = async ({ searchParams }: SearchParamProps) => {
 
   const organizedEvents = await getEventsByUser({ userId, page: eventsPage });
 
+  const orders = await getOrdersByUser({ userId, page: ordersPage });
+  const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
+
   return (
     <>
       {/* My Tickets */}
@@ -25,7 +27,7 @@ const page = async ({ searchParams }: SearchParamProps) => {
       />
 
       <section className="wrapper my-8">
-        {/* <Collection
+        <Collection
           data={orderedEvents}
           totalPages={orders?.totalPages}
           page={ordersPage}
@@ -34,7 +36,7 @@ const page = async ({ searchParams }: SearchParamProps) => {
           collectionType="My_Tickets"
           limit={3}
           urlParamName="ordersPage"
-        /> */}
+        />
       </section>
 
       {/* Events Organized */}
