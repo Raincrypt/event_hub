@@ -1,6 +1,6 @@
 TEST USER:
 
-username: test
+username: testuser
 
 password: test1234554321
 
