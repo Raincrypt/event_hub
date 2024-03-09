@@ -2,7 +2,7 @@ TEST USER:
 
 username: testuser
 
-password: test1234554321
+password: test12345
 
 /=============================================================/
 
